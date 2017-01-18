@@ -21,28 +21,73 @@ db.on 'error', (err) ->
 db.on 'disconnected', ->
   console.info "disconnected from mongodb"
 
+# contains all connected services as { "service-name": [ service1, service2 ] }
+services = {}
+# contains all sockets
+sockets = []
+
+# returns an array of sockets containing serviceName in their subscription array
+getSubscribedSockets = (serviceName) ->
+  return sockets.filter (s) ->
+    return s.subscriptions.indexOf(serviceName) != -1
+
 # listen for incoming socket connections
 io.on "connection", (socket) ->
   console.info "socket connected"
+  # contains all services this socket is subscribed to
+  socket.subscriptions = []
+  # add socket to array so we can keep track of it
+  sockets.push socket
+
   socket.on "disconnect", ->
     console.info "socket disconnected"
+    # remove dead socket from sockets array
+    sockets.splice sockets.indexOf(socket), 1
     if(socket.isService)
-      console.info "service-down", socket.name, socket.port
+      # socket was a service remove it from the services array
+      services[socket.name].splice services[socket.name].indexOf(socket), 1
+      # log some stuffs
+      console.info "service down, #{socket.name}:#{socket.port}"
+      console.info "#{services[socket.name].length} #{socket.name}(s) active"
 
-  socket.on "service-up", (data) ->
+  socket.on "service-up", (service) ->
     # this socket is a service
     socket.isService = true
-    socket.name      = data.name
-    socket.port      = data.port
-    console.info "service-up", data.name, data.port
+    # set some reference data
+    socket.name      = service.name
+    socket.port      = service.port
+    # add service to services object
+    if(services[service.name])
+      # key with this service name already exists in the services object
+      services[service.name].push socket
+    else
+      # key with this service name does not exist yet
+      # add it and put this service in an array as its value
+      services[service.name] = [ socket ]
+
+    # log some info
+    console.info "service up, #{service.name}:#{service.port}"
+    console.info "#{services[service.name].length} #{service.name}(s) active"
+    console.info "#{getSubscribedSockets(service.name).length}
+      subscibed to #{service.name}s"
+
+    # tell all subscribed sockets a new service is up
+    for subscriber in getSubscribedSockets service.name
+      subscriber.emit "service-up", {name: service.name, port: service.port}
+
+  socket.on "subscribe-to", (data) ->
+    console.log "socket subscribing to #{data.name}"
+    socket.subscriptions.push data.name
+    console.info "#{getSubscribedSockets(data.name).length}
+      subscibed to #{data.name}s"
+    # tell subscriber the current services it subscribed to
+    for subscriber in getSubscribedSockets data.name
+      # check if there are any
+      if(!services[data.name])
+        return
+      for service in services[data.name]
+        subscriber.emit "service-up", {name: service.name, port: service.port}
 
 # we need a static port for our services to connect to it
 server.listen 3001
-
-# check existing services in db on start up...
-# but this means that if a service came up when
-# we were down, it will not be saved in the db
-# we will not allow services to be created without connection to the
-# service registry
-
 console.info "Listening on port", server.address().port
