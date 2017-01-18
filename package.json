@@ -1,0 +1,22 @@
+{
+  "name": "nm-service-register",
+  "version": "0.0.1",
+  "description": "Node Mongo Service Register",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "coffee-project": "^1.7.4",
+    "coffee-script": "^1.12.2",
+    "gulp": "^3.9.1"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "http": "0.0.0",
+    "mongoose": "^4.7.7",
+    "socket.io": "^1.7.2"
+  }
+}
