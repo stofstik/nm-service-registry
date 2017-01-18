@@ -1,0 +1,16 @@
+[Unit]
+Description=Node + Mongo (psuedo) Service Registry
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/node <your_app_entry_point>
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=nm-service-registry
+User=<your_user>
+Group=<your_group>
+
+[Install]
+Wants=network.target
+WantedBy=multi-user.target
