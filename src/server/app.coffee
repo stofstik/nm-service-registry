@@ -11,7 +11,7 @@ services = {}
 sockets = []
 
 # returns an array of sockets containing serviceName in their subscription array
-getSubscribedSockets = (serviceName) ->
+subscribedSockets = (serviceName) ->
   return sockets.filter (s) ->
     return s.subscriptions.indexOf(serviceName) != -1
 
@@ -52,20 +52,20 @@ io.on "connection", (socket) ->
     # log some info
     console.info "service up, #{service.name}:#{service.port}"
     console.info "#{services[service.name].length} #{service.name}(s) active"
-    console.info "#{getSubscribedSockets(service.name).length}
+    console.info "#{subscribedSockets(service.name).length} socket(s)
       subscibed to #{service.name}s"
 
     # tell all subscribed sockets a new service is up
-    for subscriber in getSubscribedSockets service.name
+    for subscriber in subscribedSockets service.name
       subscriber.emit "service-up", {name: service.name, port: service.port}
 
   socket.on "subscribe-to", (data) ->
     console.log "socket subscribing to #{data.name}"
     socket.subscriptions.push data.name
-    console.info "#{getSubscribedSockets(data.name).length}
+    console.info "#{subscribedSockets(data.name).length} socket(s)
       subscibed to #{data.name}s"
     # tell subscriber the current services it subscribed to
-    for subscriber in getSubscribedSockets data.name
+    for subscriber in subscribedSockets data.name
       # check if there are any
       if(!services[data.name])
         return
