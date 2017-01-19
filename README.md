@@ -13,7 +13,9 @@ When a new service comes up, all the subscribed sockets will get notified of its
 So they can connect to them directly.  
 
 ### Screenshots
-64 person-generators connected
+Service Registry running, bottom-right.  
+64 person-generators up.  
+1 socket (web-server, bottom-left) subscribed to 'person-generator'  
 <img src="https://github.com/stofstik/service-registry/blob/master/screenshot-1.png" alt="screenshot" width="1024px"/>  
 
 ### Installation
