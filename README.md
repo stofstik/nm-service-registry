@@ -12,6 +12,10 @@ Other sockets can now subscribe to these services by their service name.
 When a new service comes up, all the subscribed sockets will get notified of its location.  
 So they can connect to them directly.  
 
+### Screenshots
+64 person-generators connected
+<img src="https://github.com/stofstik/service-registry/blob/master/screenshot-1.png" alt="screenshot" width="1024px"/>  
+
 ### Installation
 - `npm install -g gulp`
 - `npm install`
