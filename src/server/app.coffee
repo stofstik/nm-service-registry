@@ -1,25 +1,9 @@
 http     = require "http"
 socketio = require "socket.io"
-mongoose = require "mongoose"
 
 server  = http.createServer null
-Service = require "./db/models/service-model"
 
 io           = socketio.listen server
-mongoAddress = "mongodb://localhost:27017/Services"
-mongoose.connect mongoAddress
-
-# init mongo status logging
-db = mongoose.connection
-db.on 'connected', ->
-  console.info "connected to mongodb"
-db.on 'connecting', ->
-  console.info "connecting to mongodb"
-db.on 'error', (err) ->
-  console.info "error connecting to mongodb"
-  console.error err
-db.on 'disconnected', ->
-  console.info "disconnected from mongodb"
 
 # contains all connected services as { "service-name": [ service1, service2 ] }
 services = {}

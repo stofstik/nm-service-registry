@@ -1,5 +1,5 @@
 [Unit]
-Description=Node + Mongo (psuedo) Service Registry
+Description=Node Service Registry
 After=network.target
 
 [Service]
