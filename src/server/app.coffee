@@ -73,15 +73,13 @@ io.on "connection", (socket) ->
         subscriber.emit "service-up", {name: service.name, port: service.port}
 
 # Returns the port of each running service in a json array
+# TODO check if service that is requesting is subscribed?
 app
-  .get "/getPortsByServiceName/:serviceName", (req, res) ->
-    console.log "params: #{req.params.serviceName}"
-    console.log services[req.params.serviceName]
+  .get "/getInstancesByServiceName/:serviceName", (req, res) ->
     if(!services[req.params.serviceName])
       return res.json err: 'not-found'
     res.json services[req.params.serviceName].map (s) ->
-      return s.port
-
+      return {name: s.name, port: s.port}
 
 # we need a static port for our services to connect to it
 server.listen 3001
