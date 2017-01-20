@@ -1,9 +1,10 @@
 http     = require "http"
 socketio = require "socket.io"
+express  = require "express"
 
-server  = http.createServer null
-
-io           = socketio.listen server
+app    = express()
+server = http.createServer app
+io     = socketio.listen server
 
 # contains all connected services as { "service-name": [ service1, service2 ] }
 services = {}
@@ -51,9 +52,8 @@ io.on "connection", (socket) ->
 
     # log some info
     console.info "service up, #{service.name}:#{service.port}"
-    console.info "#{services[service.name].length} #{service.name}(s) active"
-    console.info "#{subscribedSockets(service.name).length} socket(s)
-      subscibed to #{service.name}s"
+    console.info "#{services[service.name].length} #{service.name}(s) active,
+      #{subscribedSockets(service.name).length} subscribed"
 
     # tell all subscribed sockets a new service is up
     for subscriber in subscribedSockets service.name
@@ -71,6 +71,17 @@ io.on "connection", (socket) ->
         return
       for service in services[data.name]
         subscriber.emit "service-up", {name: service.name, port: service.port}
+
+# Returns the port of each running service in a json array
+app
+  .get "/getPortsByServiceName/:serviceName", (req, res) ->
+    console.log "params: #{req.params.serviceName}"
+    console.log services[req.params.serviceName]
+    if(!services[req.params.serviceName])
+      return res.json err: 'not-found'
+    res.json services[req.params.serviceName].map (s) ->
+      return s.port
+
 
 # we need a static port for our services to connect to it
 server.listen 3001
